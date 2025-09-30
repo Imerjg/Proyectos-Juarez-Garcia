@@ -1,0 +1,11 @@
+
+# programa de calcular la tarifa del pasajero de un bus segun su edad.
+
+edad = 70
+
+if edad <= 12:
+    print(f"tarifa infantil: S/3.00")
+elif edad <= 59:
+    print(f"tarifa regular: S/5.00")
+else: 
+    print(f"tarifa especial: S/2.00")
