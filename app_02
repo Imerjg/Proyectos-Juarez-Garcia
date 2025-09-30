@@ -1,0 +1,8 @@
+nota = 20
+
+if nota <= 12.4:
+    print(f"ud. a desaprobado el curso, su nota es:{nota}")
+elif nota <= 16:
+    print(f"ud. a aprobado el curso, su nota es {nota}")
+else:
+    print(f"muy bien, sigue asi. su nota es: {nota}")
