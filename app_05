@@ -1,0 +1,6 @@
+
+#listado de futbolistas
+futbolistas = ["messi", "ronaldo", "neymar","paolo"]
+
+for futbolista in futbolistas:
+    print(futbolista)
