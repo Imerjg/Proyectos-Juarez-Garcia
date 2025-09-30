@@ -1,0 +1,9 @@
+
+# definir variable edad
+edad = 19
+
+# evaluar si una persona de acuerdo a la edad es menor de edad 
+if edad < 18:
+    print("la persona es menor de edad")
+else:
+    print("la persona es mayor de edad")
