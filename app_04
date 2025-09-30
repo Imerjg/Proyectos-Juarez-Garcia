@@ -1,0 +1,12 @@
+
+# Las variables son palabras específicas que utilizamos para asignar y almacenar valores específicos que podemos recuperar en cualquier momento.
+#variables
+
+nombre = "runy"
+edad = 25
+apellido = "juarez garcia"
+#visualizacion
+
+print(nombre)
+print(edad)
+print(apellido)
