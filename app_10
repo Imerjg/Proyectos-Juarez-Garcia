@@ -1,0 +1,15 @@
+print("Hola, ¿cuál es tu nombre?")
+nombre = input()
+print(f"Gusto conocerte, {nombre}.")
+
+print(f"¿Cuántos años tienes, {nombre}?")
+edad = input()
+print(f"Que bueno, {nombre}, tienes {edad} años. Tienes mucho por disfrutar de la vida.")
+
+print("Tengo una pregunta muy importante para ti. Si mientes, se bloqueará la sorpresa que te espera. Y si no, felicidades. Tienes 3 intentos.")
+intentos = 0
+while intentos < 3:
+    amor = input("¿Cómo se llama la persona que más amas? ")
+    if amor.lower() == "runy":
+        print("Elena, mi amor,")
+     
