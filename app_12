@@ -1,0 +1,178 @@
+#programa que gestiona un inventario de libros en una biblioteca.
+import sys
+
+# Lista global para almacenar diccionarios de libros
+BOOKS = []
+
+def pedir_entero_positivo(prompt):
+    while True:
+        try:
+            v = int(input(prompt).strip())
+            if v > 0:
+                return v
+            print("Debe ingresar un número entero mayor que 0.")
+        except ValueError:
+            print("Entrada inválida. Intente nuevamente.")
+
+def pedir_isbn(isbns_existentes):
+    while True:
+        v = input("  Código ISBN (alfanumérico, único): ").strip()
+        if not v:
+            print("El ISBN no puede estar vacío.")
+            continue
+        if not v.isalnum():
+            print("El ISBN debe ser alfanumérico (sin espacios ni símbolos).")
+            continue
+        if v in isbns_existentes:
+            print("ISBN ya registrado. Ingrese uno diferente.")
+            continue
+        return v
+
+def pedir_cadena_no_vacia(prompt):
+    while True:
+        v = input(prompt).strip()
+        if v:
+            return v
+        print("Entrada no puede estar vacía.")
+
+def pedir_precio():
+    while True:
+        try:
+            v = float(input("  Precio de reposición (S/): ").strip())
+            if v > 0:
+                return round(v, 2)
+            print("El precio debe ser mayor que 0.")
+        except ValueError:
+            print("Entrada inválida. Ingrese un número válido.")
+
+def pedir_stock():
+    while True:
+        try:
+            v = int(input("  Cantidad de copias en stock: ").strip())
+            if v >= 0:
+                return v
+            print("El stock no puede ser negativo.")
+        except ValueError:
+            print("Entrada inválida. Ingrese un entero (0 o mayor).")
+
+def ingresar_libros():
+    cantidad = pedir_entero_positivo("Cantidad total de títulos a ingresar: ")
+    isbns = set(l["isbn"] for l in BOOKS)
+    for i in range(1, cantidad + 1):
+        print(f"\nTítulo {i}:")
+        # usar tupla para agrupar isbn, titulo y genero durante el ingreso
+        isbn = pedir_isbn(isbns)
+        titulo = pedir_cadena_no_vacia("  Título: ")
+        genero = pedir_cadena_no_vacia("  Género: ")
+        datos = (isbn, titulo, genero)  # tupla según la consigna
+
+        precio = pedir_precio()
+        stock = pedir_stock()
+
+        libro = {
+            "isbn": datos[0],
+            "titulo": datos[1],
+            "genero": datos[2],
+            "precio": precio,
+            "stock": stock
+        }
+        BOOKS.append(libro)
+        isbns.add(isbn)
+    print(f"\nSe registraron {len(BOOKS)} títulos.\n")
+
+def cargar_datos_ejemplo():
+    # Datos proporcionados por el usuario — usamos tuplas (isbn, titulo, genero) durante el armado
+    ejemplos = [
+        ("L100010", "Padre rico Padre pobre", "historia", 10.0, 3),
+        ("L200020", "El arte de la guerra", "historia", 15.0, 2),
+        ("L300030", "Como mandar a la mierda educadamente", "ciencia", 12.0, 4),
+        ("L400040", "Adulterio", "ficcion", 10.0, 5),
+        ("L500050", "After", "romance", 10.0, 5),
+        ("L600060", "La ciudad y los perros", "historia", 15.0, 6),
+        ("L700070", "Mafalda", "historia", 14.0, 3),
+    ]
+    BOOKS.clear()
+    for isbn, titulo, genero, precio, stock in ejemplos:
+        datos = (isbn, titulo, genero)  # tupla según la consigna
+        libro = {
+            "isbn": datos[0],
+            "titulo": datos[1],
+            "genero": datos[2],
+            "precio": round(precio, 2),
+            "stock": int(stock)
+        }
+        BOOKS.append(libro)
+    print(f"Se cargaron {len(BOOKS)} títulos de ejemplo.\n")
+
+def calcular_valores_por_titulo():
+    for libro in BOOKS:
+        libro["valor_total"] = round(libro["precio"] * libro["stock"], 2)
+
+def generar_estadisticas():
+    if not BOOKS:
+        return {
+            "valor_total_coleccion": 0.0,
+            "genero_mayor_valor": None,
+            "titulo_mayor_valor": None,
+            "titulo_menor_valor": None
+        }
+
+    calcular_valores_por_titulo()
+    valor_total_coleccion = sum(l["valor_total"] for l in BOOKS)
+
+    # acumular por género
+    valor_por_genero = {}
+    for l in BOOKS:
+        valor_por_genero.setdefault(l["genero"], 0.0)
+        valor_por_genero[l["genero"]] += l["valor_total"]
+
+    genero_mayor_valor = max(valor_por_genero.items(), key=lambda x: x[1])[0]
+
+    titulo_mayor = max(BOOKS, key=lambda x: x["valor_total"])
+    titulo_menor = min(BOOKS, key=lambda x: x["valor_total"])
+
+    return {
+        "valor_total_coleccion": round(valor_total_coleccion, 2),
+        "genero_mayor_valor": genero_mayor_valor,
+        "titulo_mayor_valor": titulo_mayor,
+        "titulo_menor_valor": titulo_menor
+    }
+
+def mostrar_reporte_detallado():
+    if not BOOKS:
+        print("No hay libros para mostrar.")
+        return
+    calcular_valores_por_titulo()
+    header = f"{'ISBN':<15} {'Título':<30} {'Género':<15} {'Precio(S/)':>12} {'Stock':>8} {'Valor Total(S/)':>16}"
+    print("\nREPORTE DETALLADO DE LIBROS")
+    print(header)
+    print("-" * len(header))
+    for l in BOOKS:
+        print(f"{l['isbn']:<15} {l['titulo']:<30} {l['genero']:<15} {l['precio']:12.2f} {l['stock']:8d} {l['valor_total']:16.2f}")
+
+def mostrar_estadisticas(est):
+    print("\nESTADÍSTICAS")
+    print(f"Valor total de la colección: S/ {est['valor_total_coleccion']:.2f}")
+    if est["genero_mayor_valor"]:
+        print(f"Género con mayor valor en inventario: {est['genero_mayor_valor']}")
+    if est["titulo_mayor_valor"]:
+        m = est["titulo_mayor_valor"]
+        print(f"Libro con mayor valor individual: ISBN {m['isbn']}, Título '{m['titulo']}', Valor S/ {m['valor_total']:.2f}")
+    if est["titulo_menor_valor"]:
+        m = est["titulo_menor_valor"]
+        print(f"Libro con menor valor individual: ISBN {m['isbn']}, Título '{m['titulo']}', Valor S/ {m['valor_total']:.2f}")
+
+def main():
+    # Cargar los datos que proporcionaste y generar reporte automáticamente
+    cargar_datos_ejemplo()
+    mostrar_reporte_detallado()
+    est = generar_estadisticas()
+    mostrar_estadisticas(est)
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nEjecución interrumpida por el usuario.")
+        sys.exit(1)
+# fin del programa
