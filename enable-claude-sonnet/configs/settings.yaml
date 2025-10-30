@@ -1,0 +1,26 @@
+connection:
+  host: localhost
+  port: 5432
+  database: my_database
+  user: my_user
+  password: my_password
+
+deployment:
+  enabled: true
+  service_name: enable-claude-sonnet
+  replicas: 3
+
+logging:
+  level: info
+  file: /var/log/enable-claude-sonnet.log
+
+features:
+  enable_claude_sonnet: true
+  client_support: 
+    - client_a
+    - client_b
+    - client_c
+
+timeout:
+  request: 30
+  deployment: 60

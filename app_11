@@ -1,0 +1,124 @@
+# evaluacion_empleados.py
+import sys
+
+COMPETENCIAS = ["Calidad de Trabajo", "Productividad", "Comunicación", "Puntualidad"]
+PESOS = [0.30, 0.30, 0.20, 0.20]
+
+EMPLEADOS_PREDEFINIDOS = [
+    {"codigo": "Luis1000", "nombre": "Luis Diaz", "departamento": "La libertad"},
+    {"codigo": "José2000", "nombre": "José Fernando", "departamento": "San martín"},
+    {"codigo": "Maria3000", "nombre": "María Luisa", "departamento": "Amazonas"},
+    {"codigo": "Pedro4000", "nombre": "Pedro Luc", "departamento": "La libertad"},
+    {"codigo": "Simón5000", "nombre": "Simón Pomo", "departamento": "Lima"},
+]
+
+def registrar_empleados(predefinidos=True):
+    if predefinidos:
+        empleados = []
+        for e in EMPLEADOS_PREDEFINIDOS:
+            empleados.append({
+                "codigo": e["codigo"],
+                "nombre": e["nombre"],
+                "departamento": e["departamento"],
+                "puntajes": None,
+                "puntaje_ponderado": None,
+                "clasificacion": None
+            })
+        print(f"Total de empleados a evaluar: {len(empleados)}")
+        return empleados
+    return []
+
+def pedir_numero(prompt):
+    while True:
+        try:
+            v = input(prompt).strip()
+            val = float(v)
+            if 0 <= val <= 100:
+                return val
+            print("Error: el valor debe estar entre 0 y 100.")
+        except ValueError:
+            print("Entrada inválida. Ingrese un número entre 0 y 100.")
+
+def ingresar_puntajes(empleados):
+    for emp in empleados:
+        print(f"\nIngresando puntajes para {emp['nombre']} (Código: {emp['codigo']}, Departamento: {emp['departamento']})")
+        puntajes = []
+        for comp in COMPETENCIAS:
+            val = pedir_numero(f"  {comp}: ")
+            puntajes.append(val)
+        # Usamos una tupla llamada 'uplas' para almacenar los puntajes
+        uplas = tuple(puntajes)
+        emp["puntajes"] = uplas
+
+def calcular_puntaje_ponderado(empl):
+    if not empl.get("puntajes"):
+        return 0.0
+    uplas = empl["puntajes"]
+    total = sum(u * w for u, w in zip(uplas, PESOS))
+    return round(total, 2)
+
+def clasificar(puntaje):
+    if puntaje >= 90:
+        return "Sobresaliente"
+    if puntaje >= 70:
+        return "Cumple Expectativas"
+    return "Necesita Mejora"
+
+def generar_reporte(empleados):
+    reporte = []
+    for emp in empleados:
+        punt = calcular_puntaje_ponderado(emp)
+        emp["puntaje_ponderado"] = punt
+        emp["clasificacion"] = clasificar(punt)
+        reporte.append({
+            "Codigo": emp["codigo"],
+            "Nombre": emp["nombre"],
+            "Puntaje": punt,
+            "Clasificacion": emp["clasificacion"]
+        })
+    return reporte
+
+def mostrar_reporte_tabulado(reporte):
+    print("\nREPORTE FINAL")
+    cabecera = f"{'Código':<12} {'Nombre':<20} {'Puntaje':>8} {'Clasificación':>20}"
+    print(cabecera)
+    print("-" * len(cabecera))
+    for r in reporte:
+        print(f"{r['Codigo']:<12} {r['Nombre']:<20} {r['Puntaje']:8.2f} {r['Clasificacion']:>20}")
+
+def mostrar_estadisticas(empleados):
+    conteo = {"Sobresaliente": 0, "Cumple Expectativas": 0, "Necesita Mejora": 0}
+    evaluados = [e for e in empleados if e.get("puntaje_ponderado") is not None]
+    if not evaluados:
+        print("\nNo hay empleados evaluados para mostrar estadísticas.")
+        return
+
+    for e in evaluados:
+        conteo[e["clasificacion"]] += 1
+
+    mejor = max(evaluados, key=lambda x: x["puntaje_ponderado"])
+    peor = min(evaluados, key=lambda x: x["puntaje_ponderado"])
+
+    print("\nESTADÍSTICAS")
+    print(f"Total Sobresaliente: {conteo['Sobresaliente']}")
+    print(f"Total Cumple Expectativas: {conteo['Cumple Expectativas']}")
+    print(f"Total Necesita Mejora: {conteo['Necesita Mejora']}")
+    print("\nMejor empleado:")
+    print(f"  Código: {mejor['codigo']}, Nombre: {mejor['nombre']}, Puntaje: {mejor['puntaje_ponderado']:.2f}")
+    print("\nPeor empleado:")
+    print(f"  Código: {peor['codigo']}, Nombre: {peor['nombre']}, Puntaje: {peor['puntaje_ponderado']:.2f}")
+
+def main():
+    empleados = registrar_empleados(predefinidos=True)
+    ingresar_puntajes(empleados)
+    reporte = generar_reporte(empleados)
+    mostrar_reporte_tabulado(reporte)
+    mostrar_estadisticas(empleados)
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nEjecución interrumpida por el usuario.")
+        sys.exit(1)
+#fin del programa
